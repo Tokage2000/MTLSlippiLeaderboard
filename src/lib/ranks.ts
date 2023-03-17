@@ -1,6 +1,8 @@
 import { Player } from './player'
 import GrandMasterIcon from '../../images/ranks/GrandMaster.svg';
 import Master1Icon from '../../images/ranks/MasterI.svg';
+import Master2Icon from '../../images/ranks/MasterII.svg';
+import Master3Icon from '../../images/ranks/MasterIII.svg';
 import Diamond1Icon from '../../images/ranks/DiamondI.svg';
 import Diamond2Icon from '../../images/ranks/DiamondII.svg';
 import Diamond3Icon from '../../images/ranks/DiamondIII.svg';
@@ -26,6 +28,13 @@ interface Rank {
   iconUrl?: string
 }
 
+const setCount = (player: Player) => {
+  return player.rankedNetplayProfile.wins +
+    player.rankedNetplayProfile.losses;
+}
+
+const MIN_RANK_SETS = 5;
+
 class NoneRank implements Rank {
   public name = "None"
   public iconUrl = NoneIcon
@@ -36,12 +45,6 @@ class NoneRank implements Rank {
   }
 }
 
-const setCount = (player: Player) => {
-  return player.rankedNetplayProfile.wins +
-    player.rankedNetplayProfile.losses;
-}
-
-const MIN_RANK_SETS = 5;
 
 class PendingRank implements Rank {
   public name = "Pending"
@@ -67,7 +70,7 @@ class StandardRank implements Rank {
     if(setCount(player) < MIN_RANK_SETS) {
       return false
     }
-    const rating = player.rankedNetplayProfile.ratingOrdinal;
+    const rating = Math.floor(100 * player.rankedNetplayProfile.ratingOrdinal) / 100; // ensure rating doesn't fall between two bounds
     return this.lowerBound <= rating && rating <= this.upperBound;
   }
 }
@@ -83,7 +86,7 @@ class GrandMaster extends StandardRank {
       return false;
     }
     return player.rankedNetplayProfile.dailyGlobalPlacement !== null
-      && player.rankedNetplayProfile.dailyRegionalPlacement !== null;
+      || player.rankedNetplayProfile.dailyRegionalPlacement !== null;
   }
 }
 
@@ -113,8 +116,8 @@ export const RANKS = [
   new StandardRank('Diamond II', 2073.67, 2136.27, BLUE_BG, Diamond2Icon),
   new StandardRank('Diamond III', 2136.28, 2191.74, BLUE_BG, Diamond3Icon),
   new StandardRank('Master I', 2191.75, 2274.99, INDIGO_BG, Master1Icon),
-  new StandardRank('Master II', 2275, 2350, INDIGO_BG),
-  new StandardRank('Master III', 2350, Infinity, INDIGO_BG),
+  new StandardRank('Master II', 2275, 2350, INDIGO_BG, Master2Icon),
+  new StandardRank('Master III', 2350, Infinity, INDIGO_BG, Master3Icon),
   new GrandMaster()
 ]
 
